@@ -150,10 +150,52 @@ postgres=# create table test_text(t text);
 CREATE TABLE
 postgres=# insert into test_text select 'строка '||s.id from generate_series(1,500) as s(id);
 INSERT 0 500
-postgres=#
+postgres=# show data_checksums;
+ data_checksums
+----------------
+ on
 postgres=# select pg_relation_filepath('test_text');
  pg_relation_filepath
 ----------------------
  base/5/16387
 
    ```
+>Выключите кластер. Измените пару байт в таблице. Включите кластер и сделайте выборку из таблицы. Что и почему произошло?
+   ```sh
+[root@AltLinux-03 ~]# systemctl stop postgresql.service
+[root@AltLinux-03 ~]# dd if=/dev/zero of=/var/lib/pgsql/data/base/5/16387 oflag=dsync conv=notrunc bs=1 count=8
+8+0 записей получено
+8+0 записей отправлено
+8 байт скопировано, 0,00262769 s, 3,0 kB/s
+   ```sql
+postgres=# select * from test_text limit 10;
+ПРЕДУПРЕЖДЕНИЕ:  ошибка проверки страницы: получена контрольная сумма 30265, а ожидалась - 55324
+ОШИБКА:  неверная страница в блоке 0 отношения base/5/16387
+   ```
+**Включен контроль целостности страниц. Из-за ошибки контрольной суммы СУБД не вернула данные.**
+>как проигнорировать ошибку и продолжить работу?
+   ```sql
+postgres=# show ignore_checksum_failure;
+ ignore_checksum_failure
+-------------------------
+ off
+postgres=# alter system set ignore_checksum_failure = 'on';
+postgres=# Select pg_reload_conf();
+ pg_reload_conf
+----------------
+ t
+postgres=# show ignore_checksum_failure;
+ ignore_checksum_failure
+-------------------------
+ on
+postgres=# select * from test_text limit 5;
+ ПРЕДУПРЕЖДЕНИЕ:  ошибка проверки страницы: получена контрольная сумма 30265, а ожидалась - 55324
+     t
+-----------
+ строка 1
+ строка 2
+ строка 3
+ строка 4
+ строка 5
+   ```
+Для продолжения работы нужно включить флаг игнорирования данной ошибки **set ignore_checksum_failure = 'on'**
