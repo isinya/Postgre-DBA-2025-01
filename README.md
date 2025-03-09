@@ -63,4 +63,33 @@ postgres=# select pg_size_pretty(pg_size_bytes(('0/4C2C3CA0'::pg_lsn - '0/2FCD08
 [root@altLinux-02 5]# cat /var/lib/pgsql/data/log/postgresql-2025-03-09_145516.log | grep -c 'slot checkpoint'
 21
    ```
+Всего записано 454 MByte, контрольных точек 21. Т.е. 21.6 МB на точку.
+> Проверьте данные статистики: все ли контрольные точки выполнялись точно по расписанию.    
+Почему так произошло?
+   ```sh
+[root@altLinux-02 5]# cat /var/lib/pgsql/data/log/postgresql-2025-03-09_145516.log | grep 'slot checkpoint'
+2025-03-09 18:57:05.438 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 18:57:35.052 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 18:58:05.062 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 18:58:35.078 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 18:59:05.110 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 18:59:35.037 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:00:05.078 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:00:35.019 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:01:05.046 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:01:35.078 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:02:05.101 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:02:35.038 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:03:05.066 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:03:35.099 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:04:05.023 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:04:35.057 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:05:05.093 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:05:35.013 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:06:05.033 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:06:35.070 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+2025-03-09 19:08:05.083 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
+   ```
+Все контрольные точки записаны. Ошибок в логе нет.    
+Все хорошо. Нет другой нагрузки в базе. СУБД развернута на SSD.
 
