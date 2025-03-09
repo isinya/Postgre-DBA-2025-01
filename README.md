@@ -5,12 +5,6 @@
 
 >Настройте выполнение контрольной точки раз в 30 секунд.
    ```sql
-postgres=# show checkpoint_timeout;
- checkpoint_timeout
---------------------
- 5min
-(1 строка)
-
 postgres=# alter system set checkpoint_timeout = 30;
 ALTER SYSTEM
 postgres=# Select pg_reload_conf();
