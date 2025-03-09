@@ -90,6 +90,23 @@ postgres=# select pg_size_pretty(pg_size_bytes(('0/4C2C3CA0'::pg_lsn - '0/2FCD08
 2025-03-09 19:06:35.070 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
 2025-03-09 19:08:05.083 MSK [5212] ОТЛАДКА:  performing replication slot checkpoint
    ```
-Все контрольные точки записаны. Ошибок в логе нет.    
+Все контрольные точки записаны. ИНтервал 30 секунд. Ошибок в логе нет.    
 Все хорошо. Нет другой нагрузки в базе. СУБД развернута на SSD.
+> Сравните tps в синхронном/асинхронном режиме утилитой pgbench.    \
+**Синхроная запись.  tps = 761.155095**
+   ```sql
+postgres=# show synchronous_commit ;
+ synchronous_commit
+--------------------
+ on
+   ```
+   ```sh
+[root@altLinux-02 5]# pgbench -T 60 postgres -U postgres
+pgbench (15.10)
+starting vacuum...end.
+...
+initial connection time = 4.871 ms
+tps = 761.155095 (without initial connection time)
+
+   ```
 
