@@ -92,8 +92,9 @@ postgres=# select pg_size_pretty(pg_size_bytes(('0/4C2C3CA0'::pg_lsn - '0/2FCD08
    ```
 Все контрольные точки записаны. ИНтервал 30 секунд. Ошибок в логе нет.    
 Все хорошо. Нет другой нагрузки в базе. СУБД развернута на SSD.
-> Сравните tps в синхронном/асинхронном режиме утилитой pgbench.    \
-**Синхроная запись.  tps = 761.155095**
+> Сравните tps в синхронном/асинхронном режиме утилитой pgbench.
+
+Синхроная запись
    ```sql
 postgres=# show synchronous_commit ;
  synchronous_commit
@@ -105,8 +106,26 @@ postgres=# show synchronous_commit ;
 pgbench (15.10)
 starting vacuum...end.
 ...
+latency average = 1.314 ms
 initial connection time = 4.871 ms
 tps = 761.155095 (without initial connection time)
 
    ```
+Aсинхроная запись
+   ```sql
+postgres=# show synchronous_commit ;
+ synchronous_commit
+--------------------
+ off
+   ```
+   ```sh
+[root@altLinux-02 5]# pgbench -T 60 postgres -U postgres
+[root@altLinux-02 5]# pgbench -T 60 postgres -U postgres
+pgbench (15.10)
+...
+latency average = 1.100 ms
+initial connection time = 4.729 ms
+tps = 909.069907 (without initial connection time)
+   ```
+В асинхронном режиме выполняется **910 tps**, синхронном **760 tps**. Прирост порядка 20%
 
