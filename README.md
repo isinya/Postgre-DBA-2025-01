@@ -131,3 +131,29 @@ tps = 909.069907 (without initial connection time)
 В асинхронном режиме выполняется **910 tps**, синхронном **760 tps**. Прирост порядка 20%. 
 СУБД развернута на SSD, на HDD прирост был бы существеннее.
 
+
+>Создайте новый кластер с включенной контрольной суммой страниц.
+   ```sh
+[musson@AltLinux-03 ~]$ sudo -u postgres initdb --data_checksums -D /var/lib/pgsql/data/
+Файлы, относящиеся к этой СУБД, будут принадлежать пользователю "postgres".
+От его имени также будет запускаться процесс сервера.
+
+Кластер баз данных будет инициализирован с локалью "ru_RU.UTF-8".
+Кодировка БД по умолчанию, выбранная в соответствии с настройками: "UTF8".
+Выбрана конфигурация текстового поиска по умолчанию "russian".
+
+Контроль целостности страниц данных включён.
+   ```
+>Создайте таблицу. Вставьте несколько значений.
+   ```sql
+postgres=# create table test_text(t text);
+CREATE TABLE
+postgres=# insert into test_text select 'строка '||s.id from generate_series(1,500) as s(id);
+INSERT 0 500
+postgres=#
+postgres=# select pg_relation_filepath('test_text');
+ pg_relation_filepath
+----------------------
+ base/5/16387
+
+   ```
