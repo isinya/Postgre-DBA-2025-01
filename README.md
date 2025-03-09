@@ -53,3 +53,14 @@ postgres=# select pg_current_wal_insert_lsn();
    ```
 >Измерьте, какой объем журнальных файлов был сгенерирован за это время.    
 Оцените, какой объем приходится в среднем на одну контрольную точку.
+   ```sql
+postgres=# select pg_size_pretty(pg_size_bytes(('0/4C2C3CA0'::pg_lsn - '0/2FCD0820'::pg_lsn)::text));
+ pg_size_pretty
+----------------
+ 454 MB
+   ```
+   ```sh
+[root@altLinux-02 5]# cat /var/lib/pgsql/data/log/postgresql-2025-03-09_145516.log | grep -c 'slot checkpoint'
+21
+   ```
+
